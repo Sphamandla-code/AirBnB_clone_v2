@@ -9,6 +9,7 @@ class FileStorage:
     __objects = {}
 
     def all(cls=None):
+        """Return a dictionary of instantiated objects in __objects."""
         if cls is None:
             return cls.__objects
         else:
@@ -52,5 +53,6 @@ class FileStorage:
             pass
 
     def delete(self, obj=None):
+        """my comment here"""
         if obj is not None and obj in self.__objects:
             self.__objects.remove(obj)
