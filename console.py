@@ -113,39 +113,43 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-def do_create(self, line):
-        """Usage: create <class> <key 1>=<value 2> <key 2>=<value 2> ...
-        Create a new class instance with given keys/values and print its id.
-        """
-        try:
-            if not line:
-                raise SyntaxError()
-            my_list = line.split(" ")
-
-            kwargs = {}
-            for i in range(1, len(my_list)):
-                key, value = tuple(my_list[i].split("="))
-                if value[0] == '"':
-                    value = value.strip('"').replace("_", " ")
-                else:
-                    try:
-                        value = eval(value)
-                    except (SyntaxError, NameError):
-                        continue
-                kwargs[key] = value
-
-            if kwargs == {}:
-                obj = eval(my_list[0])()
-            else:
-                obj = eval(my_list[0])(**kwargs)
-                storage.new(obj)
-            print(obj.id)
-            obj.save()
-
-        except SyntaxError:
+    def do_create(self, args):
+        """ Create an object of any class"""
+        if not args:
             print("** class name missing **")
-        except NameError:
+            return
+        elif args not in HBNBCommand.classes:
             print("** class doesn't exist **")
+            return
+        # Split the arguments into class name and parameters
+        args_list = args.split()
+        class_name = args_list[0]
+        params = args_list[1:]
+        # Create a dictionary to store the parameters
+        params_dict = {}
+        # Parse the parameters and add them to the dictionary
+        for param in params:
+            # Split the parameter into key and value
+            key, value = param.split("=")
+            # Check if the value is a string
+            if value.startswith('"') and value.endswith('"'):
+                # Remove the quotes from the value
+                value = value[1:-1]
+                # Replace underscores with spaces
+                value = value.replace("_", " ")
+            # Check if the value is a float
+            elif "." in value:
+                value = float(value)
+            # Check if the value is an integer
+            else:
+                value = int(value)
+            # Add the key-value pair to the dictionary
+            params_dict[key] = value
+        # Create an instance of the class with the given parameters
+        new_instance = HBNBCommand.classes[class_name](**params_dict)
+        storage.save()
+        print(new_instance.id)
+        storage.save()
 
     def help_create(self):
         """ Help information for the create method """
