@@ -1,17 +1,20 @@
 #!/usr/bin/python3
-import tarfile
-import os.path
+""" This module contains the function do_pack that generates a .tgz archive
+  from the contents of the web_static folder (fabric script) """
+
+
+from fabric.api import *
 from datetime import datetime
 
-def do_pack():
-	output_filename = "versions/web_static_" + datetime.now().strftime("%Y%m%d%H%M%S") + ".tgz"
-	source_dir = "/data/web_static"
-	directory = "versions"
-	
-	if not os.path.exists(directory):
-		os.mkdir(directory)
-	
-	with tarfile.open(output_filename, "w:gz") as tar:
-		tar.add(source_dir, arcname=os.path.basename(source_dir))
 
-do_pack()
+def do_pack():
+    """ Fabric script that generates a .tgz archive from the contents of the...
+    ...web_static folder """
+    local("sudo mkdir -p versions")
+    date = datetime.now().strftime("%Y%m%d%H%M%S")
+    filename = "versions/web_static_{}.tgz".format(date)
+    result = local("sudo tar -cvzf {} web_static".format(filename))
+    if result.succeeded:
+        return filename
+    else:
+        return None
