@@ -1,19 +1,17 @@
 #!/usr/bin/python3
-from fabric.api import *
-import os
+import tarfile
+import os.path
 from datetime import datetime
 
-env.hosts = ['localhost']
-
-
 def do_pack():
-    try:
-        filepath = "versions/web_static_" + datetime.now().\
-                   strftime("%Y%m%d%H%M%S") + ".tgz"
-        local("mkdir -p versions")
-        local("tar -zcvf versions/web_static_$(date +%Y%m%d%H%M%S).tgz\
-        web_static")
-        print("web_static packed: {} -> {}".
-              format(filepath, os.path.getsize(filepath)))
-    except:
-            return None
+	output_filename = "versions/web_static_" + datetime.now().strftime("%Y%m%d%H%M%S") + ".tgz"
+	source_dir = "/data/web_static"
+	directory = "versions"
+	
+	if not os.path.exists(directory):
+		os.mkdir(directory)
+	
+	with tarfile.open(output_filename, "w:gz") as tar:
+		tar.add(source_dir, arcname=os.path.basename(source_dir))
+
+do_pack()
